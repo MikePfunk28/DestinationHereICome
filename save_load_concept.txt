@@ -1,0 +1,5 @@
+== Save/Load Concept ==
+Data to save: Player state (hp, inv, loc, etc.), World state (item locations, defeated NPCs).
+Structure: JSON.
+Logic: prepare_save_data(), apply_loaded_data().
+NPC ID: (loc_id, npc_name).
