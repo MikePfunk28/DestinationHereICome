@@ -1,0 +1,21 @@
+# Destination Here I Come - Game Concept
+
+## 1. Main Goal:
+The "Destination" is Aethelgard.
+Player wants to find Aethelgard for power/knowledge.
+
+## 2. Initial Setting:
+Game starts in The Shambles, a poor district in Veridia.
+Veridia has Merchant Guilds, City Watch, Underground Networks, Ancient Cults.
+
+## 3. Player's Initial Role:
+Player is an outsider in Veridia.
+Goal: Find Aethelgard.
+Starts with nothing. Survival, info gathering, resource building.
+
+== Introduction Story ==
+Veridia is a city of contrasts. You start in The Shambles, an outsider aiming for Aethelgard. Survival is key.
+
+== First Chapter Goal/Conclusion ==
+Goal: Complete package quest from Wary Informant, upgrade hideout, defeat Scrawny Thug.
+Conclusion: Informant points to a scholar in Scribe's Quarter who knows of Aethelgard.
