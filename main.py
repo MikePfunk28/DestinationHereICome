@@ -1,4 +1,5 @@
 import random
+import ascii_art # Added import
 from player import Player
 from world import locations, items_db
 from parser import parse_command
@@ -15,11 +16,21 @@ def find_npc_in_room(room_npcs_list: list, target_name: str) -> NPC | None:
     return None
 
 def print_location_details(player: Player):
+    print("\nYou scan your surroundings...")
     loc_key = player.current_location
     if loc_key not in locations:
         print(f"Error: Unknown location {loc_key}"); return
     loc_data = locations[loc_key]
     print(f"\n--- {loc_data['name']}{f' (L{player.hideout_level})' if loc_data.get('is_hideout') else ''} ---")
+
+    # Display ASCII art for the location
+    if loc_key == 'player_hideout' and hasattr(ascii_art, 'player_hideout_art'):
+        print(ascii_art.player_hideout_art)
+    elif loc_key == 'shambles_square' and hasattr(ascii_art, 'shambles_square_art'):
+        print(ascii_art.shambles_square_art)
+    elif loc_key == 'old_sewer_tunnel' and hasattr(ascii_art, 'old_sewer_tunnel_art'):
+        print(ascii_art.old_sewer_tunnel_art)
+
     print(loc_data.get(f'description_level_{player.hideout_level}', loc_data['description']) if loc_data.get('is_hideout') else loc_data['description'])
     if loc_data.get('items'):
         print("Items: " + ", ".join([items_db.get(i, {}).get('name', i) for i in loc_data['items']]))
@@ -75,19 +86,51 @@ def main_game_loop():
 
             if action == 'quit': print("Bye."); break
             elif action == 'look': print_location_details(player)
+            elif action == 'look at':
+                if target:
+                    # room_data is already defined in the loop as locations[player.current_location]
+                    location_features = room_data.get('features')
+                    if location_features:
+                        # Normalize target for key lookup (e.g., lowercase)
+                        normalized_target = target.lower()
+                        feature_description = None
+                        # Allow for synonyms or slightly different phrasings by checking if any part of the target is a key
+                        for key in location_features.keys():
+                            if key in normalized_target: # e.g. "wall" in "the crumbling wall"
+                                feature_description = location_features[key]
+                                break
+
+                        if feature_description:
+                            print(feature_description)
+                        else:
+                            print(f"You look closely at the {target}, but see nothing else of particular interest.")
+                    else:
+                        print(f"There are no special features to examine more closely here with 'look at'.")
+                else:
+                    # This case should ideally be caught by the parser returning ("error", "Look at what?")
+                    # but as a fallback:
+                    print("Look at what? You need to specify something.")
             elif action == 'inventory' or action == 'inv': print(player.get_inventory_display(items_db))
             elif action == 'status': print_status(player)
             elif action == 'go':
                 if target and target in room_data.get('exits', {}):
                     player.move(room_data['exits'][target.lower()])
                     print_location_details(player)
-                else: print("Cannot go there.")
+                else:
+                    if target: # Target was given but is not a valid exit
+                        print(f"Alas, you cannot go '{target}' from here. That path is not open to you.")
+                    else: # Should be caught by parser, but as a fallback
+                        print("Go where? You need to specify a direction.")
             elif action == 'take':
                 item_k = target.lower().replace(' ', '_') if target else None
                 if item_k and item_k in room_data.get('items', []):
                     room_data['items'].remove(item_k)
                     player.add_to_inventory(item_k, items_db)
-                else: print(f"No '{target}'." if target else "Take what?")
+                else:
+                    if target: # Target was given but item not found
+                        print(f"You search around for a '{target}', but find nothing of the sort.")
+                    else: # Should be caught by parser, but as a fallback
+                        print("Take what, exactly? Best to be specific.")
             elif action == 'talk':
                 npc_t = find_npc_in_room(room_npcs, target) if target else None
                 if npc_t and isinstance(npc_t, Ally):
@@ -109,6 +152,13 @@ def main_game_loop():
                 npc_a = find_npc_in_room(room_npcs, target) if target else None
                 if npc_a and isinstance(npc_a, Enemy):
                     print(f"\n--- Combat Initiated: You vs {npc_a.name} ---")
+
+                    # Display ASCII art for the enemy
+                    if npc_a.name == "Diseased Rat" and hasattr(ascii_art, 'diseased_rat_art'):
+                        print(ascii_art.diseased_rat_art)
+                    elif npc_a.name == "Scrawny Thug" and hasattr(ascii_art, 'scrawny_thug_art'):
+                        print(ascii_art.scrawny_thug_art)
+
                     combat_over = False
                     while player.is_alive() and npc_a.is_alive() and not combat_over:
                         combat_choice = input("Combat: [A]ttack or [R]un? ").strip().lower()
